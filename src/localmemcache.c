@@ -432,3 +432,10 @@ int local_memcache_check_consistency(local_memcache_t *lmc, lmc_error_t *e)
     return 0;
   return r;
 }
+
+void local_memcache_lock_namespace(const char *namespace, const char *filename, lmc_error_t *e)
+{
+  char clean_ns[1024];
+  lmc_namespace_or_filename((char *)clean_ns, namespace, filename, e);
+  lmc_lock_init_and_lock((char *)clean_ns, 1, e);
+}

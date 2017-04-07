@@ -233,4 +233,6 @@ int lmc_unlock_shm_region(const char *who, local_memcache_t *lmc);
 /* internal, do not use */
 int local_memcache_check_consistency(local_memcache_t *lmc, lmc_error_t *e);
 
+void local_memcache_lock_namespace(const char *namespace, const char *filename, lmc_error_t *e);
+
 #endif

@@ -42,6 +42,24 @@ lmc_lock_t *lmc_lock_init(const char *ns, int init, lmc_error_t *e)
   return l;
 }
 
+lmc_lock_t *lmc_lock_init_and_lock(const char *ns, int init, lmc_error_t *e)
+{
+  char namespace[1024];
+  lmc_namespacify(namespace, ns);
+  lmc_lock_t *l = malloc(sizeof(lmc_lock_t));
+  if (!l)
+    return NULL;
+  snprintf((char *)&l->namespace, 1023, "%s", namespace);
+  lmc_handle_error((l->sem = sem_open(l->namespace, O_CREAT, 0600, init)) == NULL, "sem_open", "LockError",
+                   l->namespace, e);
+  if (!l->sem) {
+    free(l);
+    return NULL;
+  }
+  sem_wait(l->sem);
+  return l;
+}
+
 void lmc_lock_free(lmc_lock_t *l)
 {
   if (!l)
