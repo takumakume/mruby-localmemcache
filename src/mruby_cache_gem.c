@@ -371,6 +371,18 @@ static mrb_value Cache__check_consistency(mrb_state *mrb, mrb_value self)
                                                                                   : mrb_false_value();
 }
 
+static mrb_value Cache__lock(mrb_state *mrb, mrb_value self)
+{
+  mrb_value o;
+  mrb_get_args(mrb, "o", &o);
+  lmc_check_dict(mrb, o);
+  lmc_error_t e;
+  local_memcache_lock_namespace(rstring_ptr_null(mrb_hash_get(mrb, o, lmc_rb_sym_namespace(mrb))),
+                                     rstring_ptr_null(mrb_hash_get(mrb, o, lmc_rb_sym_filename(mrb))),
+                                     &e);
+  return mrb_nil_value();
+}
+
 /*
  * Document-class: Cache
  *
@@ -433,6 +445,7 @@ void mrb_mruby_cache_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, Cache, "initialize", Cache_init, MRB_ARGS_REQ(1));
 
   mrb_define_singleton_method(mrb, (struct RObject *)Cache, "drop", Cache__drop, MRB_ARGS_REQ(1));
+  mrb_define_singleton_method(mrb, (struct RObject *)Cache, "lock", Cache__lock, MRB_ARGS_REQ(1));
   mrb_define_singleton_method(mrb, (struct RObject *)Cache, "disable_test_crash", Cache__disable_test_crash,
                               MRB_ARGS_NONE());
   mrb_define_singleton_method(mrb, (struct RObject *)Cache, "enable_test_crash", Cache__enable_test_crash,
